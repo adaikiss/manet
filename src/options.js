@@ -1,10 +1,13 @@
 "use strict";
 
 const _ = require('lodash'),
-      joi = require('joi'),
-      qs = require('qs'),
+    joi = require('joi'),
+    qs = require('qs'),
+    tmp = require('tmp'),
+    fs = require('fs'),
+    utils = require('./utils'),
 
-      REGEXP_CLIP_RECT = /^(\d*),(\d*),([1-9]\d*),([1-9]\d*)$/;
+    REGEXP_CLIP_RECT = /^(\d*),(\d*),([1-9]\d*),([1-9]\d*)$/;
 
 
 /* Schemas */
@@ -12,7 +15,8 @@ const _ = require('lodash'),
 function createSchema() {
     return joi.object().keys({
         force: joi.boolean(),
-        url: joi.string().trim().required(),
+        url: joi.string().trim(),
+        content: joi.string().trim(),
         agent: joi.string().trim(),
         headers: joi.string().trim(),
         delay: joi.number().integer().min(0),
@@ -31,8 +35,8 @@ function createSchema() {
         clipRect: joi.string().trim().regex(REGEXP_CLIP_RECT),
         zoom: joi.number().min(0),
         selector: joi.string().trim(),
-        selectorCrop:joi.boolean(),
-        selectorCropPadding:joi.number().integer(),
+        selectorCrop: joi.boolean(),
+        selectorCropPadding: joi.number().integer(),
         js: joi.boolean(),
         images: joi.boolean(),
         user: joi.string().trim(),
@@ -84,9 +88,18 @@ function parseHeaders(headers) {
 
 function readOptions(data, schema) {
     const keys = _.keys(schema.describe().children),
-          options = _.pick(data, keys);
-
-    options.url = parseUrl(options.url);
+        options = _.pick(data, keys);
+    if (options.content && options.content.length > 0) {
+        const tmpFile = tmp.fileSync({mode: '0644', prefix: 'phantomjs-', postfix: '.html'});
+        let html = fs.readFileSync('../public/template.html').toString('utf-8');
+        html = html.replace('</body>', options.content + '</body>');
+        fs.writeFileSync(tmpFile.name, html);
+        delete options.content;
+        options.url = 'file:///' + tmpFile.name;
+    } else {
+        options.url = parseUrl(options.url);
+        options.url = utils.fixUrl(options.url);
+    }
     options.headers = parseHeaders(options.headers);
     options.clipRect = parseClipRect(options.clipRect);
 

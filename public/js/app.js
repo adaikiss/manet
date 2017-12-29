@@ -56,8 +56,23 @@
         });
 
         $('#open').click(function(event) {
-            window.location = generateUrl();
             event.preventDefault();
+            $('form').submit();
+            // window.location = generateUrl();
+        });
+        const iframe = $('#contentEditableFrame');
+        $('#frameToggleBtn').click(function(){
+            if($('#contentEditableFrame').is('.expand')) {
+                let iframeDocument = iframe[0].contentDocument || iframe[0].contentWindow.document;
+                window.frames[0].realImages();
+                let content = iframeDocument.body.innerHTML;
+                if(content.length > 0) {
+                    $('#content').val(content);
+                }
+            } else {
+                window.frames[0].clear();
+            }
+            $('#contentEditableFrame').toggleClass('expand');
         });
 
         var rememberHeight = false;

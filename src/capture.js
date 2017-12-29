@@ -1,53 +1,52 @@
 "use strict";
 
 const _ = require('lodash'),
-      fs = require('fs-extra'),
-      logger = require('winston'),
-      path = require('path'),
-      squirrel = require('squirrel'),
-      crypto = require('crypto'),
-      utils = require('./utils'),
+    fs = require('fs-extra'),
+    logger = require('winston'),
+    path = require('path'),
+    squirrel = require('squirrel'),
+    crypto = require('crypto'),
+    utils = require('./utils'),
 
-      SCRIPT_FILE = 'scripts/screenshot.js',
-      DEF_ENGINE = 'phantomjs',
-      DEF_COMMAND = 'phantomjs',
-      DEF_FORMAT = 'png',
-      IMIN_MODULES = [
-          'imagemin',
-          'imagemin-gifsicle',
-          'imagemin-jpegtran',
-          'imagemin-optipng',
-          'imagemin-svgo'
-      ],
-      IMIN_OPTIONS = {
-          allowInstall: true
-      };
+    SCRIPT_FILE = 'scripts/screenshot.js',
+    DEF_ENGINE = 'phantomjs',
+    DEF_COMMAND = 'phantomjs',
+    DEF_FORMAT = 'png',
+    IMIN_MODULES = [
+        'imagemin',
+        'imagemin-gifsicle',
+        'imagemin-jpegtran',
+        'imagemin-optipng',
+        'imagemin-svgo'
+    ],
+    IMIN_OPTIONS = {
+        allowInstall: true
+    };
 
 
 /* Configurations and options */
 
 function outputFile(options, conf) {
     const json = JSON.stringify(options),
-          sha1 = crypto.createHash('sha1').update(json).digest('hex'),
-          format = options.format || DEF_FORMAT;
+        sha1 = crypto.createHash('sha1').update(json).digest('hex'),
+        format = options.format || DEF_FORMAT;
     return conf.storage + path.sep + sha1 + '.' + format;
 }
 
 function cliCommand(config) {
     const engine = config.engine || DEF_ENGINE,
-          command = config.command || config.commands[engine][process.platform];
+        command = config.command || config.commands[engine][process.platform];
     return command || DEF_COMMAND;
 }
 
 function createOptions(options, config) {
     const opts = _.omit(options, ['force', 'callback']);
-    opts.url = utils.fixUrl(options.url);
     return _.defaults(opts, config.options);
 }
 
 function createConfig(options, config) {
     const conf = _.cloneDeep(config),
-          engine = options.engine;
+        engine = options.engine;
     conf.engine = engine || conf.engine;
     return conf;
 }
@@ -88,11 +87,11 @@ function minimizeImage(src, dest, cb) {
 
 function runCapturingProcess(options, config, outputFile, base64, onFinish) {
     const scriptFile = utils.filePath(SCRIPT_FILE),
-          command = cliCommand(config).split(/[ ]+/),
-          cmd = _.union(command, [scriptFile, base64, outputFile]),
-          opts = {
-              timeout: config.timeout
-          };
+        command = cliCommand(config).split(/[ ]+/),
+        cmd = _.union(command, [scriptFile, base64, outputFile]),
+        opts = {
+            timeout: config.timeout
+        };
 
     logger.debug(
         'Options for script: %s, base64: %s, command: %s',
@@ -113,22 +112,25 @@ function runCapturingProcess(options, config, outputFile, base64, onFinish) {
 
 function screenshot(options, config, onFinish) {
     const conf = createConfig(options, config),
-          opts = createOptions(options, config),
-          base64 = utils.encodeBase64(opts),
-          file = outputFile(opts, conf),
+        opts = createOptions(options, config),
+        base64 = utils.encodeBase64(opts),
+        file = outputFile(opts, conf),
 
-          retrieveImageFromStorage = () => {
-              logger.debug('Take screenshot from file storage: %s', base64);
-              onFinish(file);
-          },
-          retrieveImageFromSite = () => {
-              runCapturingProcess(opts, conf, file, base64, (error) => {
-                  logger.debug('Process finished work: %s', base64);
-                  return onFinish(file, error);
-              });
-          };
+        retrieveImageFromStorage = () => {
+            logger.debug('Take screenshot from file storage: %s', base64);
+            onFinish(file);
+        },
+        retrieveImageFromSite = () => {
+            runCapturingProcess(opts, conf, file, base64, (error) => {
+                logger.debug('Process finished work: %s', base64);
+                if (options.url.startsWith('file:///')) {
+                    fs.unlinkSync(options.url.substring(8));
+                }
+                return onFinish(file, error);
+            });
+        };
 
-    logger.info('Capture site screenshot: "%s"', options.url);
+    logger.info('Capture site screenshot: "%s"', options.url || 'from content');
 
     if (options.force || !conf.cache) {
         retrieveImageFromSite();

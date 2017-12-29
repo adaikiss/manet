@@ -5,7 +5,7 @@ cors: false
 ui: true
 
 silent: false
-level: info
+level: debug
 
 engine: phantomjs
 timeout: 60000

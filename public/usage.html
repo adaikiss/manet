@@ -25,30 +25,39 @@
     </div>
 
     <div class="main">
+        <div id="contentEditableWrapper">
+            <iframe id="contentEditableFrame" src="template.html"></iframe>
+            <button id="frameToggleBtn">Toggle</button>
+        </div>
 
-        <form class="pure-form pure-form-aligned" method="get" action="">
+        <form class="pure-form pure-form-aligned" method="post" action="" target="_blank">
             <fieldset>
 
                 <div class="pure-control-group">
                     <label for="open">
                         <button id="open" name="open" class="pure-button pure-button-primary" title="Capture screenshot">Open</button>
                     </label>
-                    <input id="address" name="address" type="text" readonly>
+                    <input id="address" type="text" readonly>
                 </div>
 
                 <div class="pure-control-group">
                     <label for="url">Site address</label>
-                    <input id="url" name="url" type="text" placeholder="URL" maxlength="1024" value="google.com" autofocus>
+                    <input id="url" name="url" type="text" placeholder="URL" maxlength="1024" value="" autofocus>
+                </div>
+
+                <div class="pure-control-group">
+                    <label for="url">HTML content</label>
+                    <textarea id="content" name="content" placeholder="HTML content" autofocus></textarea>
                 </div>
 
                 <div class="pure-control-group">
                     <label for="width">Width</label>
-                    <input id="width" name="width" type="number" min="0" placeholder="Width">
+                    <input id="width" name="width" type="number" min="0" value="414" placeholder="Width">
                 </div>
 
                 <div class="pure-control-group">
                     <label for="height">Height</label>
-                    <input id="height" name="height" type="number" min="0" placeholder="Height">
+                    <input id="height" name="height" type="number" min="0" value="718" placeholder="Height">
                 </div>
 
                 <div class="pure-control-group">
@@ -104,17 +113,17 @@
 
                 <div class="pure-control-group">
                     <label for="js" class="pure-checkbox">Enable JavaScript</label>
-                    <input id="js" name="js" type="checkbox" checked>
+                    <input id="js" name="js" type="checkbox" value="true" checked>
                 </div>
 
                 <div class="pure-control-group">
                     <label for="images" class="pure-checkbox">Enable images</label>
-                    <input id="images" name="images" type="checkbox" checked>
+                    <input id="images" name="images" type="checkbox" value="true" checked>
                 </div>
 
                 <div class="pure-control-group">
                     <label for="force" class="pure-checkbox">Force reload</label>
-                    <input id="force" name="force" type="checkbox">
+                    <input id="force" name="force" type="checkbox" value="true">
                 </div>
 
                 <div class="pure-control-group">
@@ -123,7 +132,7 @@
                 </div>
                 <div class="pure-control-group">
                     <label for="selectorCrop" class="pure-checkbox">Crop page by DOM element</label>
-                    <input id="selectorCrop" name="selectorCrop" type="checkbox">
+                    <input id="selectorCrop" name="selectorCrop" type="checkbox" value="true">
                 </div>
                 <div class="pure-control-group">
                     <label for="selectorCropPadding">Crop padding</label>

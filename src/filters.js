@@ -25,13 +25,19 @@ function merge(req, res, next) {
     logger.debug('Request body parameters: %s', JSON.stringify(body));
 
     req.data = _.defaults(query, body);
+    for(let o in req.data) {
+        if(req.data.hasOwnProperty(o) && req.data[o] === '') {
+            delete req.data[o];
+        }
+    }
+    logger.debug('Request parameters: %s', JSON.stringify(req.data));
     return next();
 }
 
 function usage(conf) {
     if (conf.ui) {
         return (req, res, next) =>
-            !req.data.url ? res.sendFile(utils.filePath('../public/usage.html')) : next();
+            !(req.data.url || req.data.content) ? res.sendFile(utils.filePath('../public/usage.html')) : next();
     }
     return null;
 }

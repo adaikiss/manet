@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+    <title></title>
+    <script type="text/javascript" src="js/zepto.min.js"></script>
+    <script type="text/javascript">
+        function realImages() {
+            $('img').each(function(){
+                if($(this).attr('data-src') != null) {
+                    $(this).attr('src', $(this).attr('data-src'));
+                }
+                $(this).css('height', 'auto', 'important');
+            });
+        }
+        function clear() {
+            $('body').empty();
+        }
+    </script>
+</head>
+<body style="background-color: #fff;" contenteditable></body>
+</html>

@@ -192,6 +192,12 @@
         }, styles);
     }
 
+    function scrollToButtom(page) {
+        page.evaluate(function(){
+            document.body.scrollTop = document.body.scrollHeight;
+        });
+    }
+
     function renderScreenshotFile(page, options) {
         var delay = def(options.delay, DEF_DELAY),
             format = def(options.format, DEF_FORMAT),
@@ -223,6 +229,17 @@
         }, delay);
     }
 
+    // https://github.com/ariya/phantomjs/issues/13717
+    function pendingImage(document) {
+        var images = document.images;
+        for (var i = 0; i < images.length; i++) {
+            if (!images[i].complete) {
+                return images[i].src;
+            }
+        }
+        return false;
+    }
+
     function captureScreenshot(options) {
         try {
             var page = createPage(options, captureScreenshot);
@@ -231,6 +248,12 @@
                 var onPageReady = function() {
                     try {
                         addStyles(page, DEF_STYLES);
+                        scrollToButtom(page);
+                        for(;;){
+                            if(!pendingImage(document)) {
+                                break;
+                            }
+                        }
                         renderScreenshotFile(page, options);
                     } catch (e) {
                         exit(page, e);

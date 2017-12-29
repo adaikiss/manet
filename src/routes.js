@@ -1,14 +1,14 @@
 "use strict";
 
 const _ = require('lodash'),
-      fs = require('fs-extra'),
-      util = require('util'),
-      logger = require('winston'),
-      request = require('request'),
-      UrlPattern = require('url-pattern'),
-      capture = require('./capture'),
-      utils = require('./utils'),
-      opt = require('./options');
+    fs = require('fs-extra'),
+    util = require('util'),
+    logger = require('winston'),
+    request = require('request'),
+    UrlPattern = require('url-pattern'),
+    capture = require('./capture'),
+    utils = require('./utils'),
+    opt = require('./options');
 
 
 /* Utility functions */
@@ -18,16 +18,25 @@ function enableCORS(res) {
     res.setHeader('Access-Control-Expose-Headers', 'Content-Type');
 }
 
-function message(text) { return { message: text }; }
-function error(text) { return { error: text }; }
-function badCapturing(url) { return error('Can not capture: ' + url); }
+function message(text) {
+    return {message: text};
+}
+
+function error(text) {
+    return {error: text};
+}
+
+function badCapturing(url) {
+    return error('Can not capture: ' + url);
+}
 
 function sendError(res, err) {
     const msg = err.message || err;
     logger.error(msg);
     try {
         res.status(500).json(error(msg));
-    } catch (err) {}
+    } catch (err) {
+    }
     res.end();
 }
 
@@ -69,20 +78,20 @@ function sendImageToUrl(res, config, options) {
         if (err) {
             request.post(callbackUrl, error(badCapturing(options.url)));
         } else {
-            fs.stat(file, function(err, stat) {
+            fs.stat(file, function (err, stat) {
                 if (err) {
                     request.post(callbackUrl,
                         error('Error while detecting file size: ' + err.message));
                 } else {
                     const fileStream = fs.createReadStream(file),
-                          headers = { 'Content-Length': stat.size };
+                        headers = {'Content-Length': stat.size};
 
                     fileStream.on('error', (err) =>
                         request.post(callbackUrl,
                             error('Error while reading file: ' + err.message)));
 
                     fileStream.pipe(request.post(
-                        { url: callbackUrl, headers: headers },
+                        {url: callbackUrl, headers: headers},
                         (err) => {
                             if (err) {
                                 request.post(callbackUrl,
@@ -103,13 +112,13 @@ function sendImageToUrl(res, config, options) {
 function index(config) {
     return (req, res) => {
         const schema = opt.createSchema(),
-              data = utils.validate(req.data, schema);
+            data = utils.validate(req.data, schema);
 
         if (data.error) {
             res.json(error(data.error.details));
         } else {
             const options = opt.readOptions(data.value, schema),
-                  siteUrl = options.url;
+                siteUrl = options.url;
 
             if (!isUrlAllowed(config, siteUrl)) {
                 sendError(res, util.format('URL "%s" is not allowed', siteUrl));
@@ -118,7 +127,7 @@ function index(config) {
                 if (callbackUrl) {
                     res.json(message(util.format(
                         'Data file will be sent to "%s" when processed', callbackUrl
-                        )));
+                    )));
 
                     logger.debug('Streaming (\"%s\") to \"%s\"', siteUrl, callbackUrl);
 
