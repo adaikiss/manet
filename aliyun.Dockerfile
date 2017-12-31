@@ -1,7 +1,7 @@
 FROM node:6
 
 RUN echo 'deb http://mirrors.aliyun.com/debian/ jessie-backports firefox-release' > /etc/apt/sources.list.d/debian-mozilla.list && \
-    wget http://mirrors.aliyun.com/debian/pkg-mozilla-archive-keyring_1.1_all.deb && \
+    wget https://mozilla.debian.net/pkg-mozilla-archive-keyring_1.1_all.deb && \
     dpkg -i pkg-mozilla-archive-keyring_1.1_all.deb && \
     apt-get update && \
     apt-get install -y xvfb firefox fonts-takao fonts-wqy-zenhei
