@@ -14,6 +14,10 @@
                 $(this).css('height', 'auto', 'important');
             });
         }
+        function getHtml() {
+            realImages();
+            return document.documentElement.innerHTML;
+        }
         function clear() {
             $('body').empty();
         }

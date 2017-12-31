@@ -63,9 +63,7 @@
         const iframe = $('#contentEditableFrame');
         $('#frameToggleBtn').click(function(){
             if($('#contentEditableFrame').is('.expand')) {
-                let iframeDocument = iframe[0].contentDocument || iframe[0].contentWindow.document;
-                window.frames[0].realImages();
-                let content = iframeDocument.body.innerHTML;
+                const content = window.frames[0].getHtml();
                 if(content.length > 0) {
                     $('#content').val(content);
                 }

@@ -91,9 +91,7 @@ function readOptions(data, schema) {
         options = _.pick(data, keys);
     if (options.content && options.content.length > 0) {
         const tmpFile = tmp.fileSync({mode: '0644', prefix: 'phantomjs-', postfix: '.html'});
-        let html = fs.readFileSync('../public/template.html').toString('utf-8');
-        html = html.replace('</body>', options.content + '</body>');
-        fs.writeFileSync(tmpFile.name, html);
+        fs.writeFileSync(tmpFile.name, options.content);
         delete options.content;
         options.url = 'file:///' + tmpFile.name;
     } else {
